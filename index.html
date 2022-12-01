@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+	<style> .btn{border:1px solid black; padding:5px;display:inline-block} </style>
+</head>
+<body>
+	<div class="container">
+		<h1>Violation Chart</h1>
+		<p>The Inspection API from NYC OpenData features the inspections of the last and current calender year. 
+			The API provides information about inspections performed by the Department of Consumer and Worker Protection.
+			This chart shows the number of violations issued in some of the cities of New York.</p>
+		<form>
+			<input type="button" value="Go Bar Chart" id="btn_1">
+			<input type="button" value="Go Pie Chart " id="btn_2"><br><br>
+		</form>
+		<br><br><br>
+		<div id="output"></div>
+	</div>
+</body>
+<script>
+
+// Some notes.  
+//
+// In this example we will compare the populations of the top 5 most populated countries.
+// The data will be retreived from a Web Service found at this url:
+// https://restcountries.com/v3.1/all
+//  
+// To get the result we want, we can't just work with the data as it comes from the source.
+// We need to first put the data we want into a new format.  It helps to throw away
+// the data attributes we don't need and keep only the ones that are useful.
+// 
+// To determine which of the 250 countries has the greatest population we'll take this
+// strategy: sort the data by population from highest to lowest, then inspect the first
+// 5 records.
+//
+// Sorting in JavaScript is tricky.  It's best to use a 2 dimensional array 
+// that is numerically indexed in both dimensions.
+//
+// This (with imaginary data) is the structure what we want:
+// [
+//	[99999999, "The People's Country"],
+//	[9999999, "Free Landia"],
+//	[9999900, "Terra Nostra"],
+//	[9999700, "Oceana"],
+//	[9999600, "The Province of Sealand"]
+// ]
+//
+// In the example above "The People's Country" is the biggest.
+//
+// Once we have the data, we will want to manipulate portions of the
+// URL to the image chart.
+//
+// The linebreaks have been added to make this more readable.
+//
+/*
+Original URL from image-charts testing
+
+https://image-charts.com/chart?
+chco=b2dffb|e7a4e4|ffc55c|66cccc|cc0066|ffcc00&
+chd=t:30,-60,50,140,80,-90&
+chds=-80,140&
+chs=700x700&
+cht=bvs&
+chxl=1:|Tommy|Jimmy|Henry|Marty|Lucky|Sammy&
+chxt=y,x
+
+*/
+//
+// The URL we build is to be used as the src attribute 
+// of the HTML img tag.
+// 
+
+//Supporting Functions 
+
+function getTheData(){
+	console.log("Here we go get the data...");
+	$.getJSON('https://data.cityofnewyork.us/resource/jzhd-m6uv.json',function(result){
+		console.log(result);
+
+		let countBRONX = 0
+		for(let i=0; i<result.length; i++){
+			if(result[i]['inspection_result'] == 'Violation Issued' && result[i]['city']== "BRONX"){
+					countBRONX++	
+		}}
+
+		let countBROOKLYN = 0 
+		for(let i=0; i<result.length; i++){
+			if(result[i]['inspection_result'] == 'Violation Issued' && result[i]['city']== "BROOKLYN"){
+					countBROOKLYN++	
+		}}
+
+		let countASTORIA = 0 
+		for(let i=0; i<result.length; i++){
+			if(result[i]['inspection_result'] == 'Violation Issued' && result[i]['city']== "ASTORIA"){
+					countASTORIA++	
+		}}
+
+		let countEASTELMHURST = 0 
+		for(let i=0; i<result.length; i++){
+			if(result[i]['inspection_result'] == 'Violation Issued' && result[i]['city']== "EAST ELMHURST"){
+					countEASTELMHURST++	
+		}}
+
+		let countJAMAICA = 0 
+		for(let i=0; i<result.length; i++){
+			if(result[i]['inspection_result'] == 'Violation Issued' && result[i]['city']== "JAMAICA"){
+					countJAMAICA++	
+		}}
+
+		let countNEWYORK = 0 
+		for(let i=0; i<result.length; i++){
+			if(result[i]['inspection_result'] == 'Violation Issued' && result[i]['city']== "NEW YORK"){
+					countNEWYORK++	
+		}}
+
+		let countQUEENSVILLAGE = 0 
+		for(let i=0; i<result.length; i++){
+			if(result[i]['inspection_result'] == 'Violation Issued' && result[i]['city']== "QUEENS VILLAGE"){
+					countQUEENSVILLAGE++	
+		}}
+
+		let countROSEDALE = 0 
+		for(let i=0; i<result.length; i++){
+			if(result[i]['inspection_result'] == 'Violation Issued' && result[i]['city']== "ROSEDALE"){
+					countROSEDALE++	
+		}}
+		
+		
+	
+		
+
+		plotTheChart(countASTORIA,countBRONX,countBROOKLYN,countEASTELMHURST,countJAMAICA,countNEWYORK,countQUEENSVILLAGE,countROSEDALE);
+	})
+	
+	
+
+	//$("#output").html("<img src='https://picsum.photos/200'>"); //random image
+	//$("#output").html("<b>hi there</b>");
+
+}
+
+function plotTheChart(countASTORIA,countBRONX,countBROOKLYN,countEASTELMHURST,countJAMAICA,countNEWYORK,countQUEENSVILLAGE,countROSEDALE){
+
+	let imageUrl = 'https://image-charts.com/chart?'
+	imageUrl = imageUrl + "chco=ff5555|e7a4e4|b2dffb|ffc55c|bbc55c|ff5555|e7a4e4|b2dffb&"
+	imageUrl = imageUrl + "chd=t:" + countASTORIA + "," + countBRONX + "," + countBROOKLYN + "," + countEASTELMHURST + "," + countJAMAICA + "," + countNEWYORK + "," + countQUEENSVILLAGE + "," + countROSEDALE + "&"
+	//imageUrl = imageUrl + "chds=0," + data[0][0] + "&"
+	imageUrl = imageUrl + "chs=950x500&"
+	imageUrl = imageUrl + "cht=bvs&"
+	imageUrl = imageUrl + "chxl=1:|" + 'ASTORIA' + "|" + 'BRONX' + "|" + 'BROOKLYN' + "|" + 'EAST ELMHURST' + "|" + 'JAMAICA' + "|" + 'NEW YORK' + "|" + 'QUEENS VILLAGE' + "|" + 'ROSEDALE' + "&"
+	imageUrl = imageUrl + "chxt=y,x";
+	console.log(imageUrl);
+
+	$('#output').html("<img src='" + imageUrl + "'>");
+}
+
+
+// pie chart
+function getTheData2(){
+	console.log("Here we go get the data...");
+
+	//$("#output").html("<img src='https://picsum.photos/200'>"); //random image
+	//$("#output").html("<b>hi there</b>");
+   
+
+    $.getJSON('https://data.cityofnewyork.us/resource/jzhd-m6uv.json', function(result){
+        console.log(result);
+    
+        
+        let countBRONX = 0
+		for(let i=0; i<result.length; i++){
+			if(result[i]['inspection_result'] == 'Violation Issued' && result[i]['city']== "BRONX"){
+					countBRONX++	
+		}}
+
+		let countBROOKLYN = 0 
+		for(let i=0; i<result.length; i++){
+			if(result[i]['inspection_result'] == 'Violation Issued' && result[i]['city']== "BROOKLYN"){
+					countBROOKLYN++	
+		}}
+
+		let countNEWYORK = 0 
+		for(let i=0; i<result.length; i++){
+			if(result[i]['inspection_result'] == 'Violation Issued' && result[i]['city']== "NEW YORK"){
+					countNEWYORK++	
+		}}
+        let countOther = 0 
+		for(let i=0; i<result.length; i++){
+			if(result[i]['inspection_result'] == 'Violation Issued' && result[i]['city']== "QUEENS VILLAGE" && "EAST ELMHURST" && "JAMAICA" && "ROSEDALE" && "ASTORIA" ){
+					countOther++	
+		}}
+           
+
+        
+        total = countBROOKLYN+ countBRONX+ countNEWYORK + countOther;
+        plotTheChart2(countBROOKLYN, countBRONX, countNEWYORK, countOther)
+    });
+
+};
+
+
+	function plotTheChart2(countBROOKLYN, countBRONX, countNEWYORK, countOther){
+    let brooklynPer = 100 * (countBROOKLYN/ total);
+    let brooklynLabel = 'BROOKLYN ' + brooklynPer.toFixed(0) + '%';
+    
+    let bronxPer = 100 * (countBRONX/ total);
+    let bronxLabel= 'BRONX ' + bronxPer.toFixed(0) + '%';
+   
+    let newyorkPer= 100 * (countNEWYORK/ total);
+    let newyorkLabel = 'NEW YORK ' + newyorkPer.toFixed(0) + '%';
+
+    let otherPer= 100 * (countOther/ total);
+    let otherLabel = 'OTHER ' + otherPer.toFixed(0) + '%';
+
+    let imageurl = "https://image-charts.com/chart?cht=p3&";
+	imageurl = imageurl + "chs=600x600&";
+	imageurl = imageurl + "chd=t:" + countBRONX + "," + countBROOKLYN + "," + countNEWYORK + "," + countOther  +  "&";
+	imageurl = imageurl + "chl=" + bronxLabel +  '|'+ brooklynLabel+ '|'+  newyorkLabel+ '|'+ otherLabel + "&";
+	imageurl = imageurl + "chlps=font.size,10";
+    console.log(imageurl);
+
+	$("#output").html("<img src='" + imageurl + "'>"); 
+
+}
+
+
+//click event handlers
+
+$('#btn_1').click(function(){
+	getTheData();
+})
+$('#btn_2').click(function(){
+	getTheData2();
+})
+
+</script>
+</html>
